@@ -1,12 +1,9 @@
-/* styles.css */
 .custom-empty-tab {
-  margin-top: 8px;
-  padding: 10px;
-  font-size: 14px;
-  text-align: center;
-  color: #333;
-  background-color: #f1f3f4;
-  border: 1px solid #dadce0;
-  cursor: pointer;
-  border-radius: 5px;
+  display: flex;             /* Use flexbox layout, enabling easy alignment of child elements */
+  align-items: center;       /* Vertically center the content within the flex container */
+  justify-content: center;   /* Horizontally center the content within the flex container */
+  width: 100%;               /* Make the tab span the full width of its container (typically the viewport or parent div) */
+  height: 100%;              /* Make the tab span the full height of its container (typically the viewport or parent div) */
+  background-color: #f1f1f1; /* Set a light gray background color for the tab, this is for testing purposes (can be changed later) */
+  /* Copy any additional padding or margins you want to match */
 }
