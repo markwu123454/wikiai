@@ -1,9 +1,12 @@
 /* styles.css */
 .custom-empty-tab {
+  margin-top: 8px;
   padding: 10px;
   font-size: 14px;
+  text-align: center;
   color: #333;
   background-color: #f1f3f4;
   border: 1px solid #dadce0;
   cursor: pointer;
+  border-radius: 5px;
 }
