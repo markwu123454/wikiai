@@ -1,0 +1,9 @@
+/* styles.css */
+.custom-empty-tab {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f1f3f4;
+  border: 1px solid #dadce0;
+  cursor: pointer;
+}
