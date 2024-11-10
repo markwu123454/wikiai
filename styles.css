@@ -1,9 +1,18 @@
-.custom-empty-tab {
-  display: flex;             /* Use flexbox layout, enabling easy alignment of child elements */
-  align-items: center;       /* Vertically center the content within the flex container */
-  justify-content: center;   /* Horizontally center the content within the flex container */
-  width: 100%;               /* Make the tab span the full width of its container (typically the viewport or parent div) */
-  height: 100%;              /* Make the tab span the full height of its container (typically the viewport or parent div) */
-  background-color: #f1f1f1; /* Set a light gray background color for the tab, this is for testing purposes (can be changed later) */
-  /* Copy any additional padding or margins you want to match */
+#transcript-tab {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+#transcript-tab h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+#transcript-content {
+  white-space: pre-wrap;
 }

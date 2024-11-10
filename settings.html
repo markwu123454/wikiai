@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Extension Settings</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h2 { color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        select, input[type="checkbox"] { margin-top: 5px; }
+    </style>
+</head>
+<body>
+<h2>Extension Settings</h2>
+
+<!-- Settings options -->
+<label>
+    <input type="checkbox" id="ai-summarizer" />
+    Enable AI Summarizer
+</label>
+
+<label for="summarizer-level">Summarizer Detail Level:</label>
+<select id="summarizer-level">
+    <option value="brief">Brief</option>
+    <option value="detailed">Detailed</option>
+</select>
+
+<!-- Additional settings placeholder -->
+<label for="transcript-font-size">Transcript Font Size:</label>
+<select id="transcript-font-size">
+    <option value="small">Small</option>
+    <option value="medium">Medium</option>
+    <option value="large">Large</option>
+</select>
+
+<button id="save-settings">Save Settings</button>
+<p id="status" style="color: green; display: none;">Settings saved!</p>
+
+<script src="settings.js"></script>
+</body>
+</html>
