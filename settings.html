@@ -1,41 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Character set and title for the page -->
     <meta charset="UTF-8">
     <title>Extension Settings</title>
+
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h2 { color: #333; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        select, input[type="checkbox"] { margin-top: 5px; }
+        /* Basic page styling */
+        body {
+            font-family: Arial, sans-serif; /* Sets the font for the page */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            height: 100vh; /* Full height of the viewport */
+            margin: 0; /* Remove default margins */
+        }
+
+        /* Top Bar with title */
+        #top-bar {
+            background-color: #dfdfdf; /* Light gray background */
+            color: #333333; /* Dark gray text color */
+            padding: 15px; /* Add padding */
+            text-align: left; /* Align text to the left */
+            font-size: 24px; /* Set font size */
+            font-weight: bold; /* Make the title bold */
+        }
+
+
+
+        /* Layout for the main container with side menu and content */
+        #main-container {
+            display: flex; /* Flexbox for side-by-side layout */
+            flex: 1; /* Allow this container to take up remaining space */
+        }
+
+        /* Side Menu styling */
+        #menu {
+            width: 200px; /* Fixed width for the menu */
+            background-color: #f0f0f0; /* Light background for the menu */
+            padding: 10px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow around the menu */
+            height: calc(100vh - 60px); /* Make the menu take up full height minus top bar */
+            position: fixed; /* Fix it in place while scrolling */
+            top: 58px; /* Position menu below the top bar */
+        }
+
+        /* Styling for side menu items (links) */
+        #menu a {
+            display: block;
+            padding: 10px;
+            text-decoration: none; /* Remove underline */
+            color: #333; /* Dark text color */
+            margin-bottom: 10px; /* Space between menu items */
+            background-color: #ddd; /* Light background color for menu items */
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        /* Hover effect for menu items */
+        #menu a:hover {
+            background-color: #ccc; /* Darken background on hover */
+        }
+
+
+
+        /* Content area styling */
+        #settings-content {
+            margin-left: 230px; /* Offset content to the right to make space for the menu */
+            padding: 20px; /* Add padding inside the content area */
+            overflow-y: auto; /* Allow scrolling if content overflows */
+            flex: 1; /* Allow content area to grow to available space */
+        }
+
+        /* Styling for the settings content headings */
+        #settings-content h2 {
+            color: #333; /* Dark text color for headings */
+        }
+
+        /* Label styling */
+        label {
+            display: block;
+            margin-top: 15px; /* Add space above labels */
+        }
+
+        /* Input, select, and textarea elements styling */
+        input, select, textarea {
+            width: 100%; /* Make inputs fill the available width */
+            margin-top: 5px; /* Add a small space above form fields */
+            padding: 8px; /* Add padding inside form fields */
+            box-sizing: border-box; /* Ensure padding is included in width calculation */
+        }
+
+
+
+        /* Tab navigation styling for Model and Prompt sections */
+        #tabs {
+            display: flex; /* Display tabs inline */
+            margin-top: 20px; /* Add space above tabs */
+            margin-bottom: 20px; /* Add space below tabs */
+        }
+
+        #tabs div {
+            padding: 10px;
+            background-color: #eee; /* Light background for tabs */
+            margin-right: 5px; /* Space between tabs */
+            cursor: pointer; /* Change cursor to pointer on hover */
+            border-radius: 5px; /* Rounded corners for tabs */
+        }
+
+        #tabs div.active {
+            background-color: #ddd; /* Darker background for active tab */
+        }
+
+
+
+        /* Save button container positioned at the bottom right */
+        .save-container {
+            position: fixed; /* Fix the save button to the bottom right */
+            bottom: 20px; /* Space from the bottom */
+            right: 20px; /* Space from the right */
+            text-align: right; /* Align save button to the right */
+        }
+
+        /* Button styling */
+        button {
+            padding: 10px 15px; /* Padding inside the button */
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text color */
+            border: none; /* Remove border */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        /* Button hover effect */
+        button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        /* Status message styling (for "Settings saved!" message) */
+        #status {
+            color: green; /* Green color for success message */
+            margin-top: 10px;
+            font-size: 14px; /* Smaller font size for status message */
+            display: none; /* Hide by default */
+        }
+
+
+
+        /* New button styling */
+        #new-prompt {
+            padding: 10px 15px; /* Padding inside the button */
+            background-color: #4095c6; /* Green background */
+            color: white; /* White text color */
+            border: none; /* Remove border */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        /* New button hover effect */
+        #new-prompt:hover {
+            background-color: #1a79b1; /* Darker green on hover */
+        }
+
+
+
+        /* Save button styling */
+        #save-prompt {
+            padding: 10px 15px; /* Padding inside the button */
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text color */
+            border: none; /* Remove border */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        /* Save button hover effect */
+        #save-prompt:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        /* Status message styling for save button */
+        #save-prompt-status {
+            color: green; /* Green color for success message */
+            margin-top: 10px;
+            font-size: 14px; /* Smaller font size for status message */
+            display: none; /* Hide by default */
+        }
+
+
+
+        /* Delete button styling */
+        #delete-prompt {
+            padding: 10px 15px; /* Padding inside the button */
+            background-color: #ca2727; /* Red background */
+            color: white; /* White text color */
+            border: none; /* Remove border */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        /* Delete button hover effect */
+        #delete-prompt:hover {
+            background-color: #b11818; /* Darker red on hover */
+        }
+
+
+
+        /* Smaller text */
+        .hint {
+            font-size: 12px;  /* Smaller text */
+            color: gray;      /* Gray color for hint */
+        }
     </style>
 </head>
 <body>
-<h2>Extension Settings</h2>
 
-<!-- Settings options -->
-<label>
-    <input type="checkbox" id="ai-summarizer" />
-    Enable AI Summarizer
-</label>
+<!-- Top bar with title "Extension Settings" -->
+<div id="top-bar">
+    Extension Settings
+</div>
 
-<label for="summarizer-level">Summarizer Detail Level:</label>
-<select id="summarizer-level">
-    <option value="brief">Brief</option>
-    <option value="detailed">Detailed</option>
-</select>
+<!-- Main container: side menu and content area -->
+<div id="main-container">
+    <div id="menu">
+        <!-- Menu items with links to the respective sections (API Key, Model & Prompt) -->
+        <a href="#api-key" id="menu-api-key">API Key</a>
+        <a href="#model-prompt" id="menu-model-prompt">Model & Prompt</a>
+    </div>
 
-<!-- Additional settings placeholder -->
-<label for="transcript-font-size">Transcript Font Size:</label>
-<select id="transcript-font-size">
-    <option value="small">Small</option>
-    <option value="medium">Medium</option>
-    <option value="large">Large</option>
-</select>
+    <div id="settings-content">
 
-<button id="save-settings">Save Settings</button>
-<p id="status" style="color: green; display: none;">Settings saved!</p>
+        <!-- API Key Section -->
+        <div id="api-key">
+            <h3>Gemini API Key</h3>
+            <label for="api-key-input">Enter your Gemini API Key:</label>
+            <span class="hint">Your Gemini API key will be securely encrypted and stored only on your device. It will not be shared to any servers or third-party services.</span>
+            <input type="password" id="api-key-input" placeholder="Gemini API Key" />
+        </div>
 
+        <!-- Model & Prompt Section -->
+        <div id="model-prompt" style="display: none;">
+            <h3>Model & Prompt Settings</h3>
+
+            <!-- prompts selection content -->
+            <div id="prompts" class="tab-content">
+                <label for="prompts-select">Select Prompts:</label>
+                <select id="prompts-select">
+                    <option value="new-prompt">New prompt</option>
+                    <!-- Existing prompts will be dynamically populated here -->
+                </select>
+
+                <!-- Model selection content -->
+                <div id="model-content" class="tab-content">
+                    <label for="model-select">Select Model:</label>
+                    <select id="model-select">
+                        <option value="gemini-1.5-Flash">Gemini 1.5 Flash</option>
+                        <option value="gemini-1.5-Flash-8b">Gemini 1.5 Flash 8B</option>
+                        <option value="gemini-1.5-Pro">Gemini 1.5 Pro</option>
+                        <option value="gemini-1.0-Pro">Gemini 1.0 Pro</option>
+                    </select>
+                </div>
+
+                <!-- Title Input Field -->
+                <div class="input-container">
+                    <label for="prompt-title">Prompt Title:</label>
+                    <input type="text" id="prompt-title" placeholder="Enter prompt title" />
+                </div>
+
+                <!-- Prompt Content Textarea -->
+                <div class="input-container">
+                    <label for="prompt-content">Prompt:</label>
+                    <span class="hint">You can use {Transcript} for the transcript, {title} for the video title, and {description} for the video description.</span>
+                    <textarea id="prompt-content" placeholder="Enter the prompt content"></textarea>
+                </div>
+
+                <!-- Buttons for saving and deleting the prompt -->
+                <div class="button-container">
+                    <button id="new-prompt">New Prompt</button>
+                    <button id="save-prompt">Save Prompt</button>
+                    <button id="delete-prompt">Delete Prompt</button>
+                </div>
+
+                <!-- Status messages (initially hidden) -->
+                <p id="save-prompt-status" style="display: none;">Prompt saved!</p>
+                <p id="delete-prompt-status" style="display: none;">Prompt deleted!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save button and status message section -->
+<div class="save-container">
+    <p id="status">Settings saved!</p>
+    <button id="save-settings">Save Settings</button>
+</div>
+
+<!-- External script for handling functionality -->
 <script src="settings.js"></script>
+
 </body>
 </html>
