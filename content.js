@@ -1,3 +1,4 @@
+// Initialize video ID
 let currentVideoId = new URLSearchParams(window.location.search).get("v");
 
 // Function to check for video changes
@@ -38,10 +39,10 @@ function createTranscriptTab() {
     const transcriptTab = document.createElement("div");
     transcriptTab.id = "transcript-tab";
     transcriptTab.innerHTML = `
-    <h3 id="transcript-title">Transcript</h3>
-    <div id="transcript-content">Loading...</div>
-    <button id="reload-transcript-btn">Reload Transcript</button>
-  `;
+        <h3 id="transcript-title">Transcript</h3>
+        <div id="transcript-content">Loading...</div>
+        <button id="reload-transcript-btn">Reload Transcript</button>
+    `;
 
     sidebar.prepend(transcriptTab);
     console.log("Transcript tab created.");
@@ -58,18 +59,17 @@ function createTranscriptTab() {
     setInterval(checkVideoChange, 1000); // Check every 1 second
 }
 
+// Function to retrieve the transcript and then summarize it
 function retrieveTranscript() {
     const videoId = new URLSearchParams(window.location.search).get("v");
     const YT_INITIAL_PLAYER_RESPONSE_RE = /ytInitialPlayerResponse\s*=\s*({.+?})\s*;\s*(?:var\s+(?:meta|head)|<\/script|\n)/;
 
     let player = window.ytInitialPlayerResponse;
 
-    // Check if we already have the player object; if not, fetch it
     if (!player || videoId !== player.videoDetails.videoId) {
         fetch(`https://www.youtube.com/watch?v=${videoId}`)
             .then(response => response.text())
             .then(body => {
-                // Try to extract ytInitialPlayerResponse JSON from page content
                 const playerResponse = body.match(YT_INITIAL_PLAYER_RESPONSE_RE);
                 if (!playerResponse) {
                     console.warn("Unable to parse playerResponse");
@@ -77,16 +77,7 @@ function retrieveTranscript() {
                     return;
                 }
 
-                // Parse the player response and get metadata and captions
                 player = JSON.parse(playerResponse[1]);
-                const metadata = {
-                    title: player.videoDetails.title,
-                    duration: player.videoDetails.lengthSeconds,
-                    author: player.videoDetails.author,
-                    views: player.videoDetails.viewCount,
-                };
-
-                // Get the available caption tracks
                 const tracks = player.captions.playerCaptionsTracklistRenderer.captionTracks;
                 if (!tracks || tracks.length === 0) {
                     console.log("No captions available for this video.");
@@ -94,24 +85,20 @@ function retrieveTranscript() {
                     return;
                 }
 
-                // Sort tracks so that preferred language captions come first
                 tracks.sort(compareTracks);
 
-                // Fetch the transcript using the top-priority caption track
                 fetch(transcriptUrl = tracks[0].baseUrl + "&fmt=json3")
                     .then(response => response.json())
                     .then(transcript => {
-                        // Process the transcript data
                         const parsedTranscript = transcript.events
-                            .filter(event => event.segs) // Filter out invalid segments
-                            .map(event => event.segs.map(seg => seg.utf8).join(" ")) // Concatenate text in each segment
-                            .join(" ") // Join all text segments together
-                            .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove unwanted characters
-                            .replace(/\s+/g, ' '); // Replace any whitespace with a single space
+                            .filter(event => event.segs)
+                            .map(event => event.segs.map(seg => seg.utf8).join(" "))
+                            .join(" ")
+                            .replace(/[\u200B-\u200D\uFEFF]/g, '')
+                            .replace(/\s+/g, ' ');
 
-                        // Display the transcript in the extension's tab
-                        document.getElementById("transcript-content").innerText = parsedTranscript;
-                        console.log("EXTRACTED_TRANSCRIPT", parsedTranscript);
+                        // Call function to summarize the transcript
+                        summarizeTranscript(parsedTranscript);
                     })
                     .catch(error => {
                         console.error("Error fetching transcript:", error);
@@ -131,21 +118,91 @@ function compareTracks(track1, track2) {
     const langCode2 = track2.languageCode;
 
     if (langCode1 === 'en' && langCode2 !== 'en') {
-        return -1; // English comes first
+        return -1;
     } else if (langCode1 !== 'en' && langCode2 === 'en') {
-        return 1; // English comes first
+        return 1;
     } else if (track1.kind !== 'asr' && track2.kind === 'asr') {
-        return -1; // Non-ASR comes first
+        return -1;
     } else if (track1.kind === 'asr' && track2.kind !== 'asr') {
-        return 1; // Non-ASR comes first
+        return 1;
     }
 
-    return 0; // Preserve order if both have the same priority
+    return 0;
 }
 
-// Optional: If you want to track user settings for AI summarizer
-chrome.storage.sync.get(["aiSummarizerEnabled", "summarizerLevel"], (data) => {
-    if (data.aiSummarizerEnabled) {
-        // Code for AI summarizer functionality here, based on summarizerLevel
-    }
-});
+// Function to summarize the transcript using Gemini API
+function summarizeTranscript(transcript) {
+    chrome.storage.sync.get(["geminiApiKey", "promptGroups", "selectedPromptIndex"], (data) => {
+        const apiKey = atob(data.geminiApiKey);  // Decode the API key from base64
+        const promptGroups = data.promptGroups || [];
+        const selectedIndex = data.selectedPromptIndex;
+
+        // Get the selected prompt (assuming selectedPromptIndex is the index of the prompt)
+        const selectedPrompt = promptGroups[selectedIndex];
+
+        if (!selectedPrompt) {
+            console.error("No prompt selected.");
+            document.getElementById("transcript-content").innerText = "Error: No prompt selected.";
+            return;
+        }
+
+        const model = selectedPrompt.model;
+        const promptTemplate = selectedPrompt.content;
+
+        if (!model || !promptTemplate) {
+            console.error("Invalid model or prompt content.");
+            document.getElementById("transcript-content").innerText = "Error: Invalid model or prompt content.";
+            return;
+        }
+
+        // Replace {transcript} in the prompt content with the actual transcript
+        const prompt = promptTemplate.replace("{transcript}", transcript);
+
+        // Combine the model and the prompt content (just mash the two strings together)
+        const combinedContent = `Model: ${model}\n\nPrompt Content: ${prompt}`;
+
+        // Display the combined content as the "transcript" before the API call
+        document.getElementById("transcript-content").innerText = combinedContent;
+
+        // Now make the API call with the prompt content
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const requestData = {
+            contents: [{
+                parts: [{
+                    text: prompt
+                }]
+            }]
+        };
+
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        };
+
+        fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+                console.log("API Response:", data);  // Log the full API response for debugging
+
+                // Check if the response contains candidates and that it's an array
+                if (data.candidates && data.candidates.length > 0) {
+                    // Extract the generated text from the API response
+                    const generatedText = data.candidates[0].content.parts[0].text;  // Access the text field correctly
+
+                    // Display the generated summary text in the transcript section
+                    document.getElementById("transcript-content").innerText = `Summarized Text:\n\n${generatedText}`;
+                    console.log("Summarized text:", generatedText);
+                } else {
+                    console.error("No candidates in API response.");
+                    document.getElementById("transcript-content").innerText = "Error: No summary generated.";
+                }
+            })
+            .catch(error => {
+                console.error("Error with AI summarization:", error);
+                document.getElementById("transcript-content").innerText = "Error: Unable to generate summary.";
+            });
+    });
+}

@@ -21,7 +21,7 @@
             color: #333333; /* Dark gray text color */
             padding: 15px; /* Add padding */
             text-align: left; /* Align text to the left */
-            font-size: 24px; /* Set font size */
+            font-size: 48px; /* Set font size */
             font-weight: bold; /* Make the title bold */
         }
 
@@ -35,13 +35,13 @@
 
         /* Side Menu styling */
         #menu {
-            width: 200px; /* Fixed width for the menu */
+            width: 300px; /* Fixed width for the menu */
             background-color: #f0f0f0; /* Light background for the menu */
             padding: 10px;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow around the menu */
             height: calc(100vh - 60px); /* Make the menu take up full height minus top bar */
             position: fixed; /* Fix it in place while scrolling */
-            top: 58px; /* Position menu below the top bar */
+            top: 85px; /* Position menu below the top bar */
         }
 
         /* Styling for side menu items (links) */
@@ -53,6 +53,7 @@
             margin-bottom: 10px; /* Space between menu items */
             background-color: #ddd; /* Light background color for menu items */
             border-radius: 5px; /* Rounded corners */
+            font-size: 24px;
         }
 
         /* Hover effect for menu items */
@@ -64,7 +65,7 @@
 
         /* Content area styling */
         #settings-content {
-            margin-left: 230px; /* Offset content to the right to make space for the menu */
+            margin-left: 330px; /* Offset content to the right to make space for the menu */
             padding: 20px; /* Add padding inside the content area */
             overflow-y: auto; /* Allow scrolling if content overflows */
             flex: 1; /* Allow content area to grow to available space */
@@ -248,10 +249,10 @@
                 <div id="model-content" class="tab-content">
                     <label for="model-select">Select Model:</label>
                     <select id="model-select">
-                        <option value="gemini-1.5-Flash">Gemini 1.5 Flash</option>
-                        <option value="gemini-1.5-Flash-8b">Gemini 1.5 Flash 8B</option>
-                        <option value="gemini-1.5-Pro">Gemini 1.5 Pro</option>
-                        <option value="gemini-1.0-Pro">Gemini 1.0 Pro</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                        <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash 8B</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                        <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
                     </select>
                 </div>
 

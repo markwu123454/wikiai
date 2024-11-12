@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Event listener for prompt dropdown
     document.getElementById("prompts-select").addEventListener("change", handlePromptSelection);
+    document.getElementById("model-select").addEventListener("change", handleModelSelection);
 });
 
 // Load settings on startup
@@ -75,6 +76,20 @@ function handlePromptSelection() {
     });
 }
 
+function handleModelSelection() {
+    const modelSelect = document.getElementById("model-select");
+    const selectedModel = modelSelect.value;
+
+    chrome.storage.sync.get("promptGroups", (data) => {
+        const promptGroups = data.promptGroups || [];
+        const selectedIndex = document.getElementById("prompts-select").value;
+        if (promptGroups[selectedIndex]) {
+            promptGroups[selectedIndex].model = selectedModel;
+            chrome.storage.sync.set({ promptGroups });
+        }
+    });
+}
+
 function createNewPrompt() {
     // Clear all fields
     document.getElementById("prompt-title").value = "";
@@ -105,10 +120,18 @@ function savePrompt() {
         chrome.storage.sync.set({ promptGroups }, () => {
             populatePromptOptions(promptGroups, promptGroups.length - 1);  // Refresh dropdown and select the new prompt
             handlePromptSelection();  // Pre-fill the fields with the new prompt's data
-            document.getElementById("save-prompt-status").style.display = "block";
+
+            const statusElement = document.getElementById("save-prompt-status");
+            statusElement.style.display = "block";
+            statusElement.classList.add("fade-in");  // Apply fade-in effect
             setTimeout(() => {
-                document.getElementById("save-prompt-status").style.display = "none";
-            }, 1000);
+                statusElement.classList.remove("fade-in");
+                statusElement.classList.add("fade-out");  // Apply fade-out effect
+            }, 2000);  // Show for 2 seconds before starting fade-out
+            setTimeout(() => {
+                statusElement.style.display = "none";
+                statusElement.classList.remove("fade-out");
+            }, 3000);  // Hide completely after 3 seconds
         });
     });
 }
@@ -147,3 +170,23 @@ function showSection(section) {
     document.querySelectorAll("#settings-content > div").forEach((el) => el.style.display = "none");
     document.getElementById(section).style.display = "block";
 }
+
+// Dropdown logic for custom select menus
+const selectMenus = document.querySelectorAll('.select-menu');
+
+selectMenus.forEach(menu => {
+    const selectBtn = menu.querySelector('.select-btn');
+    const options = menu.querySelector('.options');
+
+    selectBtn.addEventListener('click', () => {
+        menu.classList.toggle('active'); // Toggle the dropdown
+    });
+
+    const optionsList = options.querySelectorAll('.option');
+    optionsList.forEach(option => {
+        option.addEventListener('click', () => {
+            selectBtn.querySelector('.sBtn-text').textContent = option.textContent;
+            menu.classList.remove('active'); // Close dropdown after selection
+        });
+    });
+});
