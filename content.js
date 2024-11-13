@@ -11,8 +11,7 @@ function checkVideoChange() {
     }
 }
 
-// Listen for URL changes using popstate (this works when navigating between videos in the same page)
-setInterval(checkVideoChange, 3000);
+setInterval(checkVideoChange, 3000)
 
 // Add a MutationObserver to initialize the transcript tab after page load
 const observer = new MutationObserver((mutations, obs) => {
@@ -103,7 +102,6 @@ function retrieveTranscript() {
                         document.getElementById("transcript-content").innerText = "Transcript found";
                         document.getElementById("generate-summary-btn").style.backgroundColor = "#0073e6";
                         document.getElementById("generate-summary-btn").disabled = false; // Enable button
-                        document.getElementById("generate-summary-btn").innerText = "Generate summary"; // Update button text
                     })
                     .catch(error => {
                         console.error("Error fetching transcript:", error);
@@ -152,36 +150,21 @@ function summarizeTranscript(transcript) {
         const promptGroups = data.promptGroups || [];
         const selectedIndex = data.selectedPromptIndex;
 
-        // Check if API key exists
-        if (!apiKey) {
-            console.error("API key missing.");
-            document.getElementById("transcript-content").innerText = "API key missing. Click on the extension icon to configure settings.";
-            return;
-        }
-
-        // Check if there are any prompt groups
-        if (!promptGroups || promptGroups.length === 0) {
-            console.error("No prompts available.");
-            document.getElementById("transcript-content").innerText = "No prompts available. Click on the extension icon to add prompts.";
-            return;
-        }
-
         // Get the selected prompt
         const selectedPrompt = promptGroups[selectedIndex];
 
         if (!selectedPrompt) {
             console.error("No prompt selected.");
-            document.getElementById("transcript-content").innerText = "No prompt selected. Click on the extension icon to select a prompt.";
+            document.getElementById("transcript-content").innerText = "Error while generating summary";
             return;
         }
 
         const model = selectedPrompt.model;
         const promptTemplate = selectedPrompt.content;
 
-        // Check if model or prompt template is missing
         if (!model || !promptTemplate) {
             console.error("Invalid model or prompt content.");
-            document.getElementById("transcript-content").innerText = "Invalid model or prompt content. Click on the extension icon to configure settings.";
+            document.getElementById("transcript-content").innerText = "Error while generating summary";
             return;
         }
 
