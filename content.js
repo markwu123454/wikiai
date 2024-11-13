@@ -1,5 +1,6 @@
 // Initialize video ID
 let currentVideoId = new URLSearchParams(window.location.search).get("v");
+let transcriptText = ''; // Store the transcript text globally
 
 // Function to check for video changes
 function checkVideoChange() {
@@ -9,6 +10,9 @@ function checkVideoChange() {
         retrieveTranscript(); // Reload the transcript for the new video
     }
 }
+
+// Listen for URL changes using popstate (this works when navigating between videos in the same page)
+setInterval(checkVideoChange, 3000);
 
 // Add a MutationObserver to initialize the transcript tab after page load
 const observer = new MutationObserver((mutations, obs) => {
@@ -39,24 +43,20 @@ function createTranscriptTab() {
     const transcriptTab = document.createElement("div");
     transcriptTab.id = "transcript-tab";
     transcriptTab.innerHTML = `
-        <h3 id="transcript-title">Transcript</h3>
-        <div id="transcript-content">Loading...</div>
-        <button id="reload-transcript-btn">Reload Transcript</button>
+        <h3 id="transcript-title">AI Summary</h3>
+        <div id="transcript-content">Getting transcript...</div>
+        <button id="generate-summary-btn" style="background-color: #e0e0e0;" disabled>Generate summary</button>
     `;
 
     sidebar.prepend(transcriptTab);
     console.log("Transcript tab created.");
 
-    // Attach event listener to the reload button
-    document.getElementById("reload-transcript-btn").addEventListener("click", () => {
-        console.log("Reloading transcript...");
-        retrieveTranscript();
+    // Attach event listener to the generate summary button
+    document.getElementById("generate-summary-btn").addEventListener("click", () => {
+        generateSummary();
     });
 
     retrieveTranscript(); // Start fetching the transcript
-
-    // Start checking for video changes
-    setInterval(checkVideoChange, 1000); // Check every 1 second
 }
 
 // Function to retrieve the transcript and then summarize it
@@ -73,7 +73,7 @@ function retrieveTranscript() {
                 const playerResponse = body.match(YT_INITIAL_PLAYER_RESPONSE_RE);
                 if (!playerResponse) {
                     console.warn("Unable to parse playerResponse");
-                    document.getElementById("transcript-content").innerText = "Transcript not available.";
+                    document.getElementById("transcript-content").innerText = "No transcript found for current video.";
                     return;
                 }
 
@@ -81,7 +81,7 @@ function retrieveTranscript() {
                 const tracks = player.captions.playerCaptionsTracklistRenderer.captionTracks;
                 if (!tracks || tracks.length === 0) {
                     console.log("No captions available for this video.");
-                    document.getElementById("transcript-content").innerText = "Transcript not available.";
+                    document.getElementById("transcript-content").innerText = "No transcript found for current video.";
                     return;
                 }
 
@@ -97,17 +97,22 @@ function retrieveTranscript() {
                             .replace(/[\u200B-\u200D\uFEFF]/g, '')
                             .replace(/\s+/g, ' ');
 
-                        // Call function to summarize the transcript
-                        summarizeTranscript(parsedTranscript);
+                        transcriptText = parsedTranscript; // Store the transcript in the global variable
+
+                        // Call function to show the transcript and enable the generate summary button
+                        document.getElementById("transcript-content").innerText = "Transcript found";
+                        document.getElementById("generate-summary-btn").style.backgroundColor = "#0073e6";
+                        document.getElementById("generate-summary-btn").disabled = false; // Enable button
+                        document.getElementById("generate-summary-btn").innerText = "Generate summary"; // Update button text
                     })
                     .catch(error => {
                         console.error("Error fetching transcript:", error);
-                        document.getElementById("transcript-content").innerText = "Transcript not available.";
+                        document.getElementById("transcript-content").innerText = "No transcript found for current video.";
                     });
             })
             .catch(error => {
                 console.error("Error fetching page content:", error);
-                document.getElementById("transcript-content").innerText = "Transcript not available.";
+                document.getElementById("transcript-content").innerText = "No transcript found for current video.";
             });
     }
 }
@@ -130,6 +135,16 @@ function compareTracks(track1, track2) {
     return 0;
 }
 
+// Function to generate a summary
+function generateSummary() {
+    console.log("Generating summary...");
+
+    // Change the text while generating the summary
+    document.getElementById("transcript-content").innerText = "Generating summary...";
+
+    summarizeTranscript(transcriptText); // Call the function to summarize the transcript
+}
+
 // Function to summarize the transcript using Gemini API
 function summarizeTranscript(transcript) {
     chrome.storage.sync.get(["geminiApiKey", "promptGroups", "selectedPromptIndex"], (data) => {
@@ -137,34 +152,51 @@ function summarizeTranscript(transcript) {
         const promptGroups = data.promptGroups || [];
         const selectedIndex = data.selectedPromptIndex;
 
-        // Get the selected prompt (assuming selectedPromptIndex is the index of the prompt)
+        // Check if API key exists
+        if (!apiKey) {
+            console.error("API key missing.");
+            document.getElementById("transcript-content").innerText = "API key missing. Click on the extension icon to configure settings.";
+            return;
+        }
+
+        // Check if there are any prompt groups
+        if (!promptGroups || promptGroups.length === 0) {
+            console.error("No prompts available.");
+            document.getElementById("transcript-content").innerText = "No prompts available. Click on the extension icon to add prompts.";
+            return;
+        }
+
+        // Get the selected prompt
         const selectedPrompt = promptGroups[selectedIndex];
 
         if (!selectedPrompt) {
             console.error("No prompt selected.");
-            document.getElementById("transcript-content").innerText = "Error: No prompt selected.";
+            document.getElementById("transcript-content").innerText = "No prompt selected. Click on the extension icon to select a prompt.";
             return;
         }
 
         const model = selectedPrompt.model;
         const promptTemplate = selectedPrompt.content;
 
+        // Check if model or prompt template is missing
         if (!model || !promptTemplate) {
             console.error("Invalid model or prompt content.");
-            document.getElementById("transcript-content").innerText = "Error: Invalid model or prompt content.";
+            document.getElementById("transcript-content").innerText = "Invalid model or prompt content. Click on the extension icon to configure settings.";
             return;
         }
 
         // Replace {transcript} in the prompt content with the actual transcript
-        const prompt = promptTemplate.replace("{transcript}", transcript);
+        let prompt = promptTemplate;
 
-        // Combine the model and the prompt content (just mash the two strings together)
-        const combinedContent = `Model: ${model}\n\nPrompt Content: ${prompt}`;
+        if (prompt.includes("{transcript}")) {
+            // Replace {transcript} with the actual transcript
+            prompt = promptTemplate.replace("{transcript}", transcript);
+        } else {
+            // If {transcript} is not found, append the transcript at the end
+            prompt = promptTemplate + "\n\n" + transcript;
+        }
 
-        // Display the combined content as the "transcript" before the API call
-        document.getElementById("transcript-content").innerText = combinedContent;
-
-        // Now make the API call with the prompt content
+        // API call to generate summary
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const requestData = {
             contents: [{
@@ -185,24 +217,23 @@ function summarizeTranscript(transcript) {
         fetch(url, options)
             .then(response => response.json())
             .then(data => {
-                console.log("API Response:", data);  // Log the full API response for debugging
+                console.log("API Response:", data);
 
-                // Check if the response contains candidates and that it's an array
+                // Check if the response contains candidates
                 if (data.candidates && data.candidates.length > 0) {
-                    // Extract the generated text from the API response
-                    const generatedText = data.candidates[0].content.parts[0].text;  // Access the text field correctly
+                    const generatedText = data.candidates[0].content.parts[0].text;
 
-                    // Display the generated summary text in the transcript section
-                    document.getElementById("transcript-content").innerText = `Summarized Text:\n\n${generatedText}`;
-                    console.log("Summarized text:", generatedText);
+                    // Display the generated summary text
+                    document.getElementById("transcript-content").innerText = `${generatedText}`;
+                    document.getElementById("generate-summary-btn").innerText = "Regenerate summary"; // Update button text
                 } else {
                     console.error("No candidates in API response.");
-                    document.getElementById("transcript-content").innerText = "Error: No summary generated.";
+                    document.getElementById("transcript-content").innerText = "Error while generating summary";
                 }
             })
             .catch(error => {
                 console.error("Error with AI summarization:", error);
-                document.getElementById("transcript-content").innerText = "Error: Unable to generate summary.";
+                document.getElementById("transcript-content").innerText = "Error while generating summary";
             });
     });
 }
