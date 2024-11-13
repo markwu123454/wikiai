@@ -14,13 +14,12 @@
   font-family: Poppins, sans-serif;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
   margin: 0;
-  padding-bottom: 12px;
   border-bottom: 1px solid #ddd;
   background: linear-gradient(90deg, #0073e6, #0099ff);
   color: white;
   padding: 10px;
+  padding-bottom: 12px;
   border-radius: 5px;
 }
 
