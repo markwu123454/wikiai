@@ -30,7 +30,7 @@ function loadSettings() {
                 content: "Summarize the following transcript from a YouTube video. Condense the main ideas and key points while keeping the summary informative and easy to understand. Focus on the most important aspects and remove any irrelevant details. Here is the transcript:{transcript}"
             };
             // Save example prompt if none exists
-            chrome.storage.sync.set({ promptGroups: [examplePrompt], selectedPromptIndex: 0 }, () => {
+            chrome.storage.sync.set({promptGroups: [examplePrompt], selectedPromptIndex: 0}, () => {
                 populatePromptOptions([examplePrompt], 0);
                 // Pre-fill the inputs with the example prompt values
                 document.getElementById("prompt-title").value = examplePrompt.name;
@@ -72,7 +72,7 @@ function handlePromptSelection() {
         }
 
         // Save the currently selected prompt index to storage
-        chrome.storage.sync.set({ selectedPromptIndex: selectedIndex });
+        chrome.storage.sync.set({selectedPromptIndex: selectedIndex});
     });
 }
 
@@ -85,7 +85,7 @@ function handleModelSelection() {
         const selectedIndex = document.getElementById("prompts-select").value;
         if (promptGroups[selectedIndex]) {
             promptGroups[selectedIndex].model = selectedModel;
-            chrome.storage.sync.set({ promptGroups });
+            chrome.storage.sync.set({promptGroups});
         }
     });
 }
@@ -112,12 +112,12 @@ function savePrompt() {
         const existingIndex = promptGroups.findIndex((group) => group.name === title);
 
         if (existingIndex >= 0) {
-            promptGroups[existingIndex] = { name: title, model, content };  // Override if exists
+            promptGroups[existingIndex] = {name: title, model, content};  // Override if exists
         } else {
-            promptGroups.push({ name: title, model, content });  // Add as new if not found
+            promptGroups.push({name: title, model, content});  // Add as new if not found
         }
 
-        chrome.storage.sync.set({ promptGroups }, () => {
+        chrome.storage.sync.set({promptGroups}, () => {
             populatePromptOptions(promptGroups, promptGroups.length - 1);  // Refresh dropdown and select the new prompt
             handlePromptSelection();  // Pre-fill the fields with the new prompt's data
 
@@ -143,7 +143,7 @@ function deletePrompt() {
         let promptGroups = data.promptGroups || [];
         promptGroups = promptGroups.filter((group) => group.name !== title);  // Remove by name
 
-        chrome.storage.sync.set({ promptGroups }, () => {
+        chrome.storage.sync.set({promptGroups}, () => {
             populatePromptOptions(promptGroups, 0);  // Refresh the dropdown and select the first prompt
             createNewPrompt();  // Clear fields after deletion
             document.getElementById("delete-prompt-status").style.display = "block";
@@ -158,7 +158,7 @@ function saveSettings() {
     const apiKey = document.getElementById("api-key-input").value;
     const encryptedApiKey = btoa(apiKey);  // Encode API key
 
-    chrome.storage.sync.set({ geminiApiKey: encryptedApiKey }, () => {
+    chrome.storage.sync.set({geminiApiKey: encryptedApiKey}, () => {
         document.getElementById("status").style.display = "block";
         setTimeout(() => {
             document.getElementById("status").style.display = "none";

@@ -1,6 +1,6 @@
 /* --- General Styling --- */
 body {
-    font-family: Arial, sans-serif; /* Sets the font for the page */
+    font-family: Roboto, sans-serif; /* Sets the font for the page */
     display: flex;
     flex-direction: column; /* Stack elements vertically */
     height: 100vh; /* Full height of the viewport */
@@ -135,6 +135,7 @@ button, #new-prompt, #save-prompt, #delete-prompt {
 }
 
 button {
+    margin-top: 10px;
     background-color: #4CAF50; /* Green background */
     color: white; /* White text color */
 }
@@ -188,6 +189,6 @@ button:hover {
 
 /* --- Miscellaneous --- */
 .hint {
-    font-size: 14px;  /* Slightly larger text for hints */
-    color: gray;      /* Gray color for hint */
+    font-size: 14px; /* Slightly larger text for hints */
+    color: gray; /* Gray color for hint */
 }

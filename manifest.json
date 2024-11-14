@@ -2,19 +2,33 @@
   "manifest_version": 3,
   "name": "Actually Good Free YouTube Video Summarizer",
   "version": "1.0",
-  "description": "A simple and completely free youtube video summarizer that does require the minimal amount of technical knowledge to use.",
-  "permissions": ["storage", "tabs"],
-  "action": {
-    "default_title": "YouTube Transcript Settings"
-  },
+  "description": "A simple and completely free YouTube video summarizer.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "background"
+  ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/bundle.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://www.youtube.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "matches": [
+        "*://www.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ]
     }
+  ],
+  "action": {
+    "default_title": "YouTube Transcript Settings"
+  },
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
   ]
 }

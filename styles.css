@@ -1,78 +1,78 @@
 /* Main styling for the transcript tab */
 #transcript-tab {
-  position: relative;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
-  max-width: 400px; /* Adjust this based on your sidebar width */
+    position: relative;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    max-width: 400px; /* Adjust this based on your sidebar width */
 }
 
 /* Title styling with a subtle gradient background */
 #transcript-title {
-  font-family: Poppins, sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
-  border-bottom: 1px solid #ddd;
-  background: linear-gradient(90deg, #0073e6, #0099ff);
-  color: white;
-  padding: 10px;
-  padding-bottom: 12px;
-  border-radius: 5px;
+    font-family: Poppins, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+    background: linear-gradient(90deg, #0073e6, #0099ff);
+    color: white;
+    padding: 10px;
+    padding-bottom: 12px;
+    border-radius: 5px;
 }
 
 /* Make the transcript content area scrollable with enhanced style */
 #transcript-content {
-  height: 300px;
-  overflow-y: scroll;
-  padding: 10px;
-  max-height: 300px;
-  font-size: 14px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  color: #555;
-  background-color: #f7f7f7;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  margin-top: 10px;
-  line-height: 1.6;
+    height: 300px;
+    overflow-y: scroll;
+    padding: 10px;
+    max-height: 300px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #555;
+    background-color: #f7f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    margin-top: 10px;
+    line-height: 1.6;
 }
 
 /* Button styling for "Generate summary" */
 #generate-summary-btn {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background: linear-gradient(90deg, #0073e6, #0099ff);
-  color: white;
-  border: none;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: not-allowed; /* Initially grayed out */
-  transition: background-color 0.3s ease;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: linear-gradient(90deg, #0073e6, #0099ff);
+    color: white;
+    border: none;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: not-allowed; /* Initially grayed out */
+    transition: background-color 0.3s ease;
 }
 
 /* Button enabled hover effect */
 #generate-summary-btn:enabled {
-  cursor: pointer;
-  background-color: #0073e6;
+    cursor: pointer;
+    background-color: #0073e6;
 }
 
 #generate-summary-btn:enabled:hover {
-  background-color: #005bb5;
+    background-color: #005bb5;
 }
 
 /* Add a nice scroll bar styling */
 #transcript-content::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 
 #transcript-content::-webkit-scrollbar-thumb {
-  background-color: #b3b3b3;
-  border-radius: 10px;
+    background-color: #b3b3b3;
+    border-radius: 10px;
 }
 
 #transcript-content::-webkit-scrollbar-thumb:hover {
-  background-color: #888;
+    background-color: #888;
 }
